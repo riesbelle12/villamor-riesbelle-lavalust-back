@@ -215,6 +215,20 @@ Route definition:
 $router->get('/api/users', 'Api::users');
 ```
 
+## Act 6 React client
+
+The Act 6 app in `../ries-react` uses the JSON routes added here:
+
+- `POST /api/login`, `POST /api/refresh`, and `POST /api/logout`
+- `GET` and `POST /api/products`
+- `GET`, `PUT`, and `DELETE /api/products/{id}`
+
+For local setup, configure the database values in `.env`, then set independent random values for `JWT_SECRET` and `REFRESH_TOKEN_KEY`. Keep these secrets on the backend only. `FRONTEND_ORIGINS` should contain the exact React origin, such as `http://localhost:5173`.
+
+The product and refresh-token tables are migrations. Migrations are disabled by default: enable them temporarily in `app/config/migration.php`, run the local `/migrate` route, then disable them again. Do not expose the migration routes on a public server.
+
+Start the frontend from `../ries-react` with `npm install` and `npm run dev`. Its Vite proxy defaults to this LavaLust folder under `http://localhost`; use the React `.env.local` settings if your Laragon host or folder URL differs.
+
 ---
 
 ## Philosophy
