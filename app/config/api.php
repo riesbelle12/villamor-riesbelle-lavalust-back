@@ -44,7 +44,7 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 | and disable it back when you're done.
 |
 */
-$config['api_helper_enabled'] = FALSE;
+$config['api_helper_enabled'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,7 +75,7 @@ $config['refresh_token_expiration'] = 604800;
 | Used for Securing endpoint
 |
 */
-$config['jwt_secret'] = 'cbTsnJDxCodakDxh4M3qd5Sn3Kd2cYCDp4MEu0DAPxx';
+$config['jwt_secret'] = getenv('JWT_SECRET') ?: '';
 
 /*
 |--------------------------------------------------------------------------
@@ -85,18 +85,46 @@ $config['jwt_secret'] = 'cbTsnJDxCodakDxh4M3qd5Sn3Kd2cYCDp4MEu0DAPxx';
 | Used for Securing endpoint
 |
 */
-$config['refresh_token_key'] = '0bNvxjPFJ6dhi1Ttf7AStp95zUcd1iy94mjblklwfPs';
+$config['refresh_token_key'] = getenv('REFRESH_TOKEN_KEY') ?: '';
 
 /*
 |--------------------------------------------------------------------------
 | Access-Control-Allow-Origin
 |--------------------------------------------------------------------------
 |
-| Access-Control-Allow-Origin - change this to your domain if
-| already deployed.
+| Set FRONTEND_ORIGINS to comma-separated exact frontend origins.
 |
 */
-$config['allow_origin'] = '*';
+$default_frontend_origins = [
+    'https://villamor-riesbelle-crud.onrender.com',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:4173',
+    'http://127.0.0.1:4173',
+    'http://localhost',
+    'http://127.0.0.1',
+];
+
+$frontend_origins = getenv('FRONTEND_ORIGINS');
+if ($frontend_origins === false || trim($frontend_origins) === '') {
+    $frontend_origins = implode(',', $default_frontend_origins);
+}
+
+$config['frontend_origins'] = array_values(array_unique(array_filter(array_map(
+    'trim',
+    explode(',', $frontend_origins)
+))));
+
+if (empty($config['frontend_origins'])) {
+    $config['frontend_origins'] = $default_frontend_origins;
+}
+
+$request_origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$config['allow_origin'] = in_array($request_origin, $config['frontend_origins'], true)
+    ? $request_origin
+    : '';
 
 /*
 |--------------------------------------------------------------------------

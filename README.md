@@ -225,6 +225,8 @@ The Act 6 app in `../ries-react` uses the JSON routes added here:
 
 For local setup, configure the database values in `.env`, then set independent random values for `JWT_SECRET` and `REFRESH_TOKEN_KEY`. Keep these secrets on the backend only. `FRONTEND_ORIGINS` should contain the exact React origin, such as `http://localhost:5173`.
 
+For the Render backend service, configure `FRONTEND_ORIGINS` to include `https://villamor-riesbelle-crud.onrender.com` (exact origin, no trailing slash), and set `JWT_SECRET` and `REFRESH_TOKEN_KEY` as private service environment variables. Deploy the backend commit that includes the `/api/*` routes and `ApiController`; environment-variable changes alone do not add these routes. After changing code or environment variables, redeploy the backend and verify that `OPTIONS /api/login` returns `204` with `Access-Control-Allow-Origin: https://villamor-riesbelle-crud.onrender.com`.
+
 The product and refresh-token tables are migrations. Migrations are disabled by default: enable them temporarily in `app/config/migration.php`, run the local `/migrate` route, then disable them again. Do not expose the migration routes on a public server.
 
 Start the frontend from `../ries-react` with `npm install` and `npm run dev`. Its Vite proxy defaults to this LavaLust folder under `http://localhost`; use the React `.env.local` settings if your Laragon host or folder URL differs.

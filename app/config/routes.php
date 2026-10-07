@@ -58,6 +58,20 @@ $router->get('/login', 'AuthController::login');
 $router->post('/login', 'AuthController::login');
 $router->get('/logout', 'AuthController::logout');
 
+$router->options('/api/login', 'ApiController::preflight');
+$router->options('/api/logout', 'ApiController::preflight');
+$router->options('/api/refresh', 'ApiController::preflight');
+$router->options('/api/products', 'ApiController::preflight');
+$router->options('/api/products/{id}', 'ApiController::preflight')->where_number('id');
+$router->post('/api/login', 'ApiController::login');
+$router->post('/api/logout', 'ApiController::logout');
+$router->post('/api/refresh', 'ApiController::refresh');
+$router->get('/api/products', 'ApiController::products');
+$router->post('/api/products', 'ApiController::products');
+$router->get('/api/products/{id}', 'ApiController::product')->where_number('id');
+$router->put('/api/products/{id}', 'ApiController::product')->where_number('id');
+$router->delete('/api/products/{id}', 'ApiController::product')->where_number('id');
+
 $router->get('/products', 'ProductController::index')->middleware('auth');
 $router->get('/products/create', 'ProductController::create')->middleware('auth');
 $router->post('/products/create', 'ProductController::create')->middleware('auth');
@@ -65,3 +79,11 @@ $router->get('/products/edit/{id}', 'ProductController::edit')->where_number('id
 $router->post('/products/edit/{id}', 'ProductController::edit')->where_number('id')->middleware('auth');
 $router->get('/products/delete/{id}', 'ProductController::delete')->where_number('id')->middleware('auth');
 $router->post('/products/delete/{id}', 'ProductController::delete')->where_number('id')->middleware('auth');
+
+// Migration Routes
+$router->get('create-migration/{migration_class}', 'MigrationController::create_migration');
+$router->get('migrate', 'MigrationController::migrate');
+$router->get('rollback', 'MigrationController::rollback');
+$router->get('rollback-all', 'MigrationController::rollback_all');
+$router->get('refresh', 'MigrationController::refresh');
+$router->get('status', 'MigrationController::status');
