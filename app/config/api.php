@@ -107,19 +107,15 @@ $default_frontend_origins = [
     'http://127.0.0.1',
 ];
 
-$frontend_origins = getenv('FRONTEND_ORIGINS');
-if ($frontend_origins === false || trim($frontend_origins) === '') {
-    $frontend_origins = implode(',', $default_frontend_origins);
-}
+$configured_frontend_origins = getenv('FRONTEND_ORIGINS');
+$configured_frontend_origins = $configured_frontend_origins === false
+    ? []
+    : array_map('trim', explode(',', $configured_frontend_origins));
 
-$config['frontend_origins'] = array_values(array_unique(array_filter(array_map(
-    'trim',
-    explode(',', $frontend_origins)
+$config['frontend_origins'] = array_values(array_unique(array_filter(array_merge(
+    $default_frontend_origins,
+    $configured_frontend_origins
 ))));
-
-if (empty($config['frontend_origins'])) {
-    $config['frontend_origins'] = $default_frontend_origins;
-}
 
 $request_origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $config['allow_origin'] = in_array($request_origin, $config['frontend_origins'], true)
