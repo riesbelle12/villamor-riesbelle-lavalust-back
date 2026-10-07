@@ -344,9 +344,16 @@ class ApiController extends Controller
     {
         header('Vary: Origin');
         $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-        $allowed_origins = config_item('frontend_origins');
+        $allowed_origins = ['https://villamor-riesbelle-crud.onrender.com'];
+        $configured_origins = getenv('FRONTEND_ORIGINS');
+        if ($configured_origins !== false) {
+            $allowed_origins = array_merge(
+                $allowed_origins,
+                array_map('trim', explode(',', $configured_origins))
+            );
+        }
 
-        $is_allowed = is_array($allowed_origins) && in_array($origin, $allowed_origins, true);
+        $is_allowed = in_array($origin, $allowed_origins, true);
         if (!$is_allowed && $origin !== '') {
             $host = parse_url($origin, PHP_URL_HOST);
             $is_allowed = $host !== null && in_array($host, ['localhost', '127.0.0.1'], true);
