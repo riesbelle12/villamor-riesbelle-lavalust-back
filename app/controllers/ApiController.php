@@ -6,6 +6,7 @@ class ApiController extends Controller
     public function __construct()
     {
         parent::__construct();
+        $this->cors_headers();
     }
 
     public function preflight()
