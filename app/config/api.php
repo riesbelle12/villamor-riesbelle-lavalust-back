@@ -96,7 +96,7 @@ $config['refresh_token_key'] = '0bNvxjPFJ6dhi1Ttf7AStp95zUcd1iy94mjblklwfPs';
 | already deployed.
 |
 */
-$config['allow_origin'] = '*';
+$config['allow_origin'] = 'https://villamor-riesbelle-crud.onrender.com';
 
 /*
 |--------------------------------------------------------------------------
