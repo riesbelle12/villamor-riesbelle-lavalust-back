@@ -97,30 +97,7 @@ $config['refresh_token_key'] = getenv('REFRESH_TOKEN_KEY') ?: '';
 */
 $default_frontend_origins = [
     'https://villamor-riesbelle-crud.onrender.com',
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:4173',
-    'http://127.0.0.1:4173',
-    'http://localhost',
-    'http://127.0.0.1',
 ];
-
-$configured_frontend_origins = getenv('FRONTEND_ORIGINS');
-$configured_frontend_origins = $configured_frontend_origins === false
-    ? []
-    : array_map('trim', explode(',', $configured_frontend_origins));
-
-$config['frontend_origins'] = array_values(array_unique(array_filter(array_merge(
-    $default_frontend_origins,
-    $configured_frontend_origins
-))));
-
-$request_origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-$config['allow_origin'] = in_array($request_origin, $config['frontend_origins'], true)
-    ? $request_origin
-    : '';
 
 /*
 |--------------------------------------------------------------------------

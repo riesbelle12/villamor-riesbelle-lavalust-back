@@ -160,6 +160,57 @@ if ( ! function_exists('show_error'))
 	}
 }
 
+if ( ! function_exists('_lavalust_is_api_request'))
+{
+	function _lavalust_is_api_request()
+	{
+		$path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+		return is_string($path) && preg_match('#^/api(?:/|$)#', $path) === 1;
+	}
+}
+
+if ( ! function_exists('_lavalust_respond_api_error'))
+{
+	function _lavalust_respond_api_error()
+	{
+		if ( ! _lavalust_is_api_request()) {
+			return;
+		}
+
+		while (ob_get_level() > 0) {
+			ob_end_clean();
+		}
+
+		if ( ! headers_sent()) {
+			header('Vary: Origin');
+			$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+			$allowed_origins = ['https://villamor-riesbelle-crud.onrender.com'];
+			$configured_origins = getenv('FRONTEND_ORIGINS');
+			if ($configured_origins !== false) {
+				$allowed_origins = array_merge(
+					$allowed_origins,
+					array_map('trim', explode(',', $configured_origins))
+				);
+			}
+
+			$is_allowed = in_array($origin, $allowed_origins, true);
+			if ( ! $is_allowed && $origin !== '') {
+				$host = parse_url($origin, PHP_URL_HOST);
+				$is_allowed = $host !== null && in_array($host, ['localhost', '127.0.0.1'], true);
+			}
+
+			if ($origin !== '' && $is_allowed) {
+				header('Access-Control-Allow-Origin: ' . $origin);
+			}
+
+			header('Content-Type: application/json; charset=utf-8');
+		}
+
+		http_response_code(500);
+		echo json_encode(['error' => 'An internal server error occurred.']);
+	}
+}
+
 if ( ! function_exists('_shutdown_handler'))
 {
 	/**
@@ -172,6 +223,17 @@ if ( ! function_exists('_shutdown_handler'))
 		if (isset($last_error) &&
 			($last_error['type'] & (E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING)))
 		{
+			if (_lavalust_is_api_request()) {
+				error_log(sprintf(
+					'Fatal API error: %s in %s:%d',
+					$last_error['message'],
+					$last_error['file'],
+					$last_error['line']
+				));
+				_lavalust_respond_api_error();
+				return;
+			}
+
 			_error_handler($last_error['type'], $last_error['message'], $last_error['file'], $last_error['line']);
 		}
 	}
@@ -186,6 +248,18 @@ if ( ! function_exists('_exception_handler'))
 	 */
 	function _exception_handler($e)
 	{
+		if (_lavalust_is_api_request()) {
+			error_log(sprintf(
+				'Unhandled API exception: %s: %s in %s:%d',
+				get_class($e),
+				$e->getMessage(),
+				$e->getFile(),
+				$e->getLine()
+			));
+			_lavalust_respond_api_error();
+			return;
+		}
+
 		if(config_item('log_threshold') == 1 || config_item('log_threshold') == 3)
 		{
 			$logger = load_class('logger', 'kernel');

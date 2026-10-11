@@ -136,6 +136,15 @@ class Errors
 	 */
 	public function show_database_error($message, $sql = '', $bindings = [], $exception = null, $template = 'error_db')
 	{
+		if (function_exists('_lavalust_is_api_request') && _lavalust_is_api_request()) {
+			error_log(sprintf(
+				'API database error: %s',
+				$exception instanceof Throwable ? $exception->getMessage() : $message
+			));
+			_lavalust_respond_api_error();
+			exit();
+		}
+
 		$template_path = config_item('error_view_path');
 		if (empty($template_path)) {
 			$template_path = APP_DIR . 'views/errors/';

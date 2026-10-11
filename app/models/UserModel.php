@@ -15,7 +15,8 @@ class UserModel extends Model {
         'email',
         'username',
         'password',
-        'isactive'
+        'is_active',
+        'role'
     ];
         protected $guarded = ['id'];
 
